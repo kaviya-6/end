@@ -30,7 +30,6 @@ const budgetSchema = new mongoose.Schema({
 
 const Budget = mongoose.model('Budget', budgetSchema);
 
-// Get all budgets
 server.get('/api/budgets', async (req, res) => {
   try {
     const budgets = await Budget.find();
@@ -40,19 +39,22 @@ server.get('/api/budgets', async (req, res) => {
   }
 });
 
-// Add a new budget
 server.post('/api/budgets', async (req, res) => {
   try {
     const { title, amount, category } = req.body;
+
+    if (!title || !amount || !category) {
+      return res.status(400).json({ error: 'Title, amount, and category are required' });
+    }
+
     const newBudget = new Budget({ title, amount, category });
     const savedBudget = await newBudget.save();
     res.status(201).json(savedBudget);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Update a budget by ID
 server.put('/api/budgets/:id', async (req, res) => {
   try {
     const budgetId = req.params.id;
@@ -68,7 +70,6 @@ server.put('/api/budgets/:id', async (req, res) => {
   }
 });
 
-// Delete a budget by ID
 server.delete('/api/budgets/:id', async (req, res) => {
   try {
     const budgetId = req.params.id;
